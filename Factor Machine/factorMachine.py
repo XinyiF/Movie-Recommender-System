@@ -4,7 +4,7 @@ import numpy as np
 from random import normalvariate #正态分布
 from sklearn.preprocessing import MinMaxScaler
 from scipy.special import expit
-from loadData import *
+import pickle
 
 class FM(object):
     def __init__(self):
@@ -14,7 +14,7 @@ class FM(object):
         self.label_test = None
 
         self.alpha = 0.01
-        self.iter = 3000
+        self.iter = 50
         self.k= 3
         self._w = None
         self._w_0 = None
@@ -78,37 +78,34 @@ class FM(object):
         wi = np.zeros(n)
         V = normalvariate(0, 0.2) * np.ones([n, self.k])
         for it in range(self.iter):
+            # 随机梯度下降法
+            for sampleId in range(m):
+                # 计算交叉项
+                temp=0
+                Vt=V.T
+                for k in range(self.k):
+                    inner1=self.kernal(Vt[k],self.data[sampleId])
+                    inner2=self.kernal(Vt[k]**2,self.data[sampleId]**2)
+                    temp+=inner1-inner2
+                temp/=2
+                term1=w0
+                term2=self.kernal(self.data[sampleId],wi)
+                # 该sample的预测值
+                y_hat=term1+term2+temp
+                # 计算损失
+                yp=self.sigmoid(y_hat*self.label[sampleId])
+                part_df_loss=(yp-1)*self.label[sampleId]
+                #  更新w0,wi
+                w0-=self.alpha*1*part_df_loss
+                for i in range(n):
+                    if self.data[sampleId][i]!=0:
+                        wi[i]-=self.alpha*self.data[sampleId][i]*part_df_loss
+                        for f in range(self.k):
+                            V[i][f] -= self.alpha * part_df_loss * self.data[sampleId][i] * sum(
+                                V[j][f] * self.data[sampleId][j] -
+                                V[i][f] * self.data[sampleId][i] * self.data[sampleId][i] for j in range(n))
 
-            loss=0
-            # 随机梯度下降法，每次使用一个sample更新参数
-            # for sampleId in range(m):
-            sampleId=np.random.randint(0,m)
-            # 计算交叉项
-            # print('计算交叉项...')
-            temp=0
-            for i in range(n):
-                for j in range(i+1,n):
-                    temp+=self.kernal(V[i],V[j])*self.data[sampleId][i]*self.data[sampleId][j]
-            term1=w0
-            term2=self.kernal(self.data[sampleId],wi)
-            # 该sample的预测值
-
-            y_hat=term1+term2+temp
-            # print('预测值=',y_hat)
-            # 计算损失
-            yp=self.sigmoid(y_hat*self.label[sampleId])
-            loss=yp-1
-            part_df_loss=(yp-1)*self.label[sampleId]
-            #  更新w0,wi
-            w0-=self.alpha*1*part_df_loss
-            for i in range(n):
-                if self.data[sampleId][i]!=0:
-                    wi[i]-=self.alpha*self.data[sampleId][i]*part_df_loss
-                    for f in range(self.k):
-                        V[i][f]-=self.alpha*part_df_loss*self.data[sampleId][i]*sum(V[j][f]*self.data[sampleId][j]-
-                                                                                    V[i][f]*self.data[sampleId][i]*self.data[sampleId][i] for j in range(n))
-
-            print('第%s次训练的误差为：%f' % (it, loss))
+            print('第%s次训练' % (it))
         self._w = wi
         self._w_0 = w0
         self.v = V
@@ -117,18 +114,25 @@ class FM(object):
 def main():
     os=FM()
     print('准备数据...')
-    data_train, data_test, y_train, y_test = prepareData()
+    with open('data.pickle','rb') as f:
+        data_train=pickle.load(f)
+        data_test=pickle.load(f)
+        y_train=pickle.load(f)
+        y_test=pickle.load(f)
     print('处理数据...')
+    # 减小训练集size
+    data_train=data_train[:500]
+    y_train=y_train[:500]
     os.preprocessing(data_train,y_train)
     os.preprocessing(data_test,y_test,True)
     # 训练模型
     os.sgd_fm()
     print('训练结束...')
     acu=[]
-    test=os.label_test
     maxAcu,maxThold=0,0
-    for thold in np.arange(0.6,0.9,0.01):
-        for user,label in zip(os.data_test[:20],os.label_test[:20]):
+    for thold in np.arange(0.4,1,0.01):
+        for user,label in zip(os.data_test[:40],os.label_test[:40]):
+            # print(os.getPrediction(user,thold),label)
             if os.getPrediction(user,thold)==label:
                 acu.append(1)
             else:
