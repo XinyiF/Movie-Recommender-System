@@ -56,18 +56,23 @@ def negativeSample(path,userFeature,itemFeature,ratio):
 
 
 
+def prepareData():
+    with open('positiveData.pickle','rb') as f:
+        pos=pickle.load(f)
+    with open('negativeData.pickle', 'rb') as f:
+        neg = pickle.load(f)
+    data=np.append(pos,neg,axis=0)
+    np.random.shuffle(data)
+    data=data[:2000]
+    X=data[:,:len(data[0])-1]
+    y=data[:,-1]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=0)
+    with open('CoMoDaData.pickle','wb') as f:
+        pickle.dump(X_train,f)
+        pickle.dump(X_test, f)
+        pickle.dump(y_train, f)
+        pickle.dump(y_test, f)
+    return X_train, X_test, y_train, y_test
 
+X_train, X_test, y_train, y_test=prepareData()
 
-
-
-
-path='/Users/user/git_repo/Movie-Recommender-System/CoMoDa/CoMoDa.csv'
-
-userFeature=['age','sex','city','country','location','social','endEmo','dominantEmo','mood','physical']
-itemFeature=['director','movieCountry','movieLanguage','movieYear','genre1','genre2','genre3','actor1','actor2','actor3','budget']
-# data=featureMatrix(path,userFeature,itemFeature)
-# with open('positiveData.pickle','wb') as f:
-#     pickle.dump(data,f)
-# nega=negativeSample(path,userFeature,itemFeature,1)
-# with open('negativeData.pickle','wb') as f:
-#     pickle.dump(nega,f)

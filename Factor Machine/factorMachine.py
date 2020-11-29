@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+git # -*- coding: utf-8 -*-
 
 import numpy as np
 from random import normalvariate #正态分布
