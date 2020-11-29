@@ -14,7 +14,7 @@ def featureMatrix(path,userFeature,itemFeature):
     # for sample in user_item:
     #     oneHot.append(UserItemOneHot(sample[0],sample[1],path))
     # data=np.append(np.array(oneHot),data,axis=1)
-    data=np.append(user_item,data,axis=1)
+    # data=np.append(user_item,data,axis=1)
     data=np.append(data,np.ones([len(data),1]),axis=1)
     return data
 
@@ -73,7 +73,7 @@ def prepareData():
         neg = pickle.load(f)
     data=np.append(pos,neg,axis=0)
     np.random.shuffle(data)
-    data=data[:2000]
+    # data=data
     X=data[:,:len(data[0])-1]
     y=data[:,-1]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=0)
@@ -84,5 +84,5 @@ def prepareData():
         pickle.dump(y_test, f)
     return X_train, X_test, y_train, y_test
 
-# X_train, X_test, y_train, y_test=prepareData()
+X_train, X_test, y_train, y_test=prepareData()
 
