@@ -14,7 +14,7 @@ class FM(object):
         self.label_test = None
 
         self.alpha = 0.01
-        self.iter = 50
+        self.iter = 30
         self.k= 3
         self._w = None
         self._w_0 = None
@@ -130,7 +130,7 @@ def main():
     print('训练结束...')
     acu=[]
     maxAcu,maxThold=0,0
-    for thold in np.arange(0.4,1,0.01):
+    for thold in np.arange(0.4,0.8,0.01):
         for user,label in zip(os.data_test[:40],os.label_test[:40]):
             # print(os.getPrediction(user,thold),label)
             if os.getPrediction(user,thold)==label:
