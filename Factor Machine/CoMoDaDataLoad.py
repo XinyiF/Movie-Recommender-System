@@ -74,5 +74,5 @@ def prepareData():
         pickle.dump(y_test, f)
     return X_train, X_test, y_train, y_test
 
-X_train, X_test, y_train, y_test=prepareData()
+# X_train, X_test, y_train, y_test=prepareData()
 

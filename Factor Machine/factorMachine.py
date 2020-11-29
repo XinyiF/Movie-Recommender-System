@@ -1,4 +1,4 @@
-git # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import numpy as np
 from random import normalvariate #正态分布
@@ -114,15 +114,15 @@ class FM(object):
 def main():
     os=FM()
     print('准备数据...')
-    with open('data.pickle','rb') as f:
+    with open('CoMoDaData.pickle','rb') as f:
         data_train=pickle.load(f)
         data_test=pickle.load(f)
         y_train=pickle.load(f)
         y_test=pickle.load(f)
     print('处理数据...')
     # 减小训练集size
-    data_train=data_train[:500]
-    y_train=y_train[:500]
+    data_train=data_train[:400]
+    y_train=y_train[:400]
     os.preprocessing(data_train,y_train)
     os.preprocessing(data_test,y_test,True)
     # 训练模型
