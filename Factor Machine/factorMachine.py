@@ -44,9 +44,12 @@ class FM(object):
     def getPrediction(self,x,thold):
         m, n = np.shape(self.data)
         temp = 0
-        for i in range(n):
-            for j in range(i + 1, n):
-                temp += self.kernal(self.v[i], self.v[j]) * x[i] * x[j]
+        Vt = self.v.T
+        for k in range(self.k):
+            inner1 = self.kernal(Vt[k], x)
+            inner2 = self.kernal(Vt[k] ** 2, x ** 2)
+            temp += inner1 - inner2
+        temp /= 2
         term1 = self._w_0
         term2 = self.kernal(x, self._w)
         # 该sample的预测值
@@ -92,6 +95,7 @@ class FM(object):
                 term2=self.kernal(self.data[sampleId],wi)
                 # 该sample的预测值
                 y_hat=term1+term2+temp
+                # print(y_hat)
                 # 计算损失
                 yp=self.sigmoid(y_hat*self.label[sampleId])
                 part_df_loss=(yp-1)*self.label[sampleId]
@@ -130,9 +134,9 @@ def main():
     print('训练结束...')
     acu=[]
     maxAcu,maxThold=0,0
-    for thold in np.arange(0.4,0.8,0.01):
+    for thold in np.arange(0.4,1,0.01):
         for user,label in zip(os.data_test[:40],os.label_test[:40]):
-            # print(os.getPrediction(user,thold),label)
+            print(os.getPrediction(user,thold),label)
             if os.getPrediction(user,thold)==label:
                 acu.append(1)
             else:
